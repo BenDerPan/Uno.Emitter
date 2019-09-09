@@ -1,8 +1,11 @@
-﻿using System;
+﻿using MQTTnet;
+using MQTTnet.Client;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Emitter.Messages;
-using Emitter.Utility;
+using System.Threading;
+using Uno.Emitter.Messages;
+using Uno.Emitter.Utility;
 
 namespace Uno.Emitter
 {
@@ -41,7 +44,8 @@ namespace Uno.Emitter
                 this.Trie.RegisterHandler(channel, optionalHandler);
 
             // Subscribe
-            return this.Client.Subscribe(new string[] { FormatChannel(key, channel, options) }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
+            this.Client.SubscribeAsync(new TopicFilterBuilder().WithTopic(FormatChannel(key, channel, options)).Build());
+            return 1;
         }
 
         /// <summary>
@@ -60,7 +64,11 @@ namespace Uno.Emitter
                 this.Trie.RegisterHandler(channel, optionalHandler);
 
             // Subscribe
-            return this.Client.Subscribe(new string[] { FormatChannelShare(key, channel, shareGroup, options) }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
+            this.Client.SubscribeAsync(
+                new TopicFilterBuilder()
+                .WithTopic(FormatChannelShare(key, channel, shareGroup, options))
+                .Build());
+            return 2;
         }
 
 
@@ -92,7 +100,8 @@ namespace Uno.Emitter
             this.Trie.UnregisterHandler(key);
 
             // Unsubscribe
-            return this.Client.Unsubscribe(new string[] { FormatChannel(key, channel) });
+            this.Client.UnsubscribeAsync();
+            return 1;
         }
 
         #endregion Unsubscribe

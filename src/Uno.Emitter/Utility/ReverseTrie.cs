@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace Emitter.Utility
+namespace Uno.Emitter.Utility
 {
  /// <summary>
     /// Represents a trie with a reverse-pattern search.

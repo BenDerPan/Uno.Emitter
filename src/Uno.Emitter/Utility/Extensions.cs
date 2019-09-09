@@ -17,17 +17,7 @@ Contributors:
 using System.Collections;
 using System.Globalization;
 using System.Threading;
-using Emitter;
 
-#if (MF)
-using Microsoft.SPOT;
-#endif
-#if WINRT
-
-using System.Linq;
-using System.Reflection;
-
-#endif
 
 namespace System
 {
@@ -58,67 +48,6 @@ namespace System
             }
             return null;
         }
-
-#if WINRT
-
-        /// <summary>
-        /// Gets the methods from the type.
-        /// </summary>
-        /// <param name="type">The type to retrieve the methods from.</param>
-        /// <returns></returns>
-        public static MethodInfo[] GetMethods(this Type type)
-        {
-            return type.GetTypeInfo().DeclaredMethods.ToArray();
-        }
-
-#endif
-
-#if MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3
-        /// <summary>
-        /// Gets whether the hashtable contains the key.
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        internal static bool ContainsKey(this Hashtable source, object key)
-        {
-            return source.Contains(key);
-        }
-
-        /// <summary>
-        /// Determines whether the end of this string instance matches the specified string.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="value">The string to compare to the substring at the end of this instance.</param>
-        /// <returns>true if value matches the end of this instance; otherwise, false.</returns>
-        public static bool EndsWith(this string s, string value)
-        {
-            return s.IndexOf(value) == s.Length - value.Length;
-        }
-
-        /// <summary>
-        /// Determines whether the beginning of this string instance matches the specified string.
-        /// </summary>
-        /// <param name="s">The string to compare.</param>
-        /// <param name="value">The string to compare.</param>
-        /// <returns>true if value matches the beginning of this string; otherwise, false.</returns>
-        public static bool StartsWith(this string s, string value)
-        {
-            return s.IndexOf(value) == 0;
-        }
-
-        /// <summary>
-        ///  Returns a value indicating whether a specified substring occurs within this string.
-        /// </summary>
-        /// <param name="s">The string to check.</param>
-        /// <param name="value">The string to seek.</param>
-        /// <returns> true if the value parameter occurs within this string, or if value is the empty
-        /// string (""); otherwise, false.</returns>
-        public static bool Contains(this string s, string value)
-        {
-            return s.IndexOf(value) >= 0;
-        }
-#endif
 
         /// <summary>
         /// Attempts to parse a number into a Uint32

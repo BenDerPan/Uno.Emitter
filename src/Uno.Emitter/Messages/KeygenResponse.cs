@@ -13,11 +13,12 @@ Contributors:
 */
 
 
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Text;
 
-namespace Emitter.Messages
+namespace Uno.Emitter.Messages
 {
     /// <summary>
     /// Represents a key generation response.
@@ -48,7 +49,7 @@ namespace Emitter.Messages
         /// <returns></returns>
         public static KeygenResponse FromJson(string json)
         {
-            var map = JsonSerializer.DeserializeString(json) as Hashtable;
+            var map = JsonConvert.DeserializeObject(json) as Hashtable;
             // Check for error.
             ErrorEvent.ThrowIfError(map);
 

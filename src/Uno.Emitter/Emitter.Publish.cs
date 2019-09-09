@@ -1,5 +1,7 @@
+using MQTTnet;
+using MQTTnet.Client;
 using System.Text;
-using Emitter.Utility;
+using Uno.Emitter.Utility;
 
 namespace Uno.Emitter
 {
@@ -44,7 +46,13 @@ namespace Uno.Emitter
         /// <returns>The message identifier.</returns>
         public ushort Publish(string key, string channel, string message)
         {
-            return this.Client.Publish(FormatChannel(key, channel), Encoding.UTF8.GetBytes(message));
+            //return this.Client.Publish(FormatChannel(key, channel), Encoding.UTF8.GetBytes(message));
+            var msg = new MqttApplicationMessageBuilder()
+                .WithTopic(FormatChannel(key, channel))
+                .WithPayload(Encoding.UTF8.GetBytes(message))
+                .Build();
+            this.Client.PublishAsync(msg);
+            return 1;
         }
 
         /// <summary>
@@ -56,7 +64,15 @@ namespace Uno.Emitter
         /// <returns>The message identifier.</returns>
         public ushort Publish(string key, string channel, byte[] message)
         {
-            return this.Client.Publish(FormatChannel(key, channel), message);
+            //return this.Client.Publish(FormatChannel(key, channel), message);
+            var msg = new MqttApplicationMessageBuilder()
+               .WithTopic(FormatChannel(key, channel))
+               .WithPayload(message)
+               .Build();
+            this.Client.PublishAsync(msg);
+            return 1;
+
+
         }
 
         /// <summary>
@@ -69,8 +85,9 @@ namespace Uno.Emitter
         /// <returns>The message identifier.</returns>
         public ushort Publish(string key, string channel, string message, int ttl)
         {
-            return this.Client.Publish(FormatChannel(key, channel, Options.WithTTL(ttl)),
-                Encoding.UTF8.GetBytes(message));
+            //return this.Client.Publish(FormatChannel(key, channel, Options.WithTTL(ttl)),
+            //    Encoding.UTF8.GetBytes(message));
+            return Publish(key, channel, message);
         }
 
         /// <summary>
@@ -83,9 +100,17 @@ namespace Uno.Emitter
         /// <returns>The message identifier.</returns>
         public ushort Publish(string key, string channel, string message, params string[] options)
         {
-            GetHeader(options, out var retain, out var qos);
-            return this.Client.Publish(FormatChannel(key, channel, options), Encoding.UTF8.GetBytes(message), qos,
-                retain);
+            //GetHeader(options, out var retain, out var qos);
+            //return this.Client.Publish(FormatChannel(key, channel, options), Encoding.UTF8.GetBytes(message), qos,
+            //    retain);
+
+            var msg = new MqttApplicationMessageBuilder()
+               .WithTopic(FormatChannel(key, channel))
+               .WithPayload(message)
+               .WithExactlyOnceQoS()
+               .Build();
+            this.Client.PublishAsync(msg);
+            return 1;
         }
 
         /// <summary>
@@ -98,7 +123,8 @@ namespace Uno.Emitter
         /// <returns>The message identifier.</returns>
         public ushort Publish(string key, string channel, byte[] message, int ttl)
         {
-            return this.Client.Publish(FormatChannel(key, channel, Options.WithTTL(ttl)), message);
+            //return this.Client.Publish(FormatChannel(key, channel, Options.WithTTL(ttl)), message);
+            return 10;
         }
 
         /// <summary>
@@ -111,8 +137,9 @@ namespace Uno.Emitter
         /// <returns>The message identifier.</returns>
         public ushort Publish(string key, string channel, byte[] message, params string[] options)
         {
-            GetHeader(options, out var retain, out var qos);
-            return this.Client.Publish(FormatChannel(key, channel, options), message, qos, retain);
+            //GetHeader(options, out var retain, out var qos);
+            //return this.Client.Publish(FormatChannel(key, channel, options), message, qos, retain);
+            return 9;
         }
 
         #endregion Publish Members

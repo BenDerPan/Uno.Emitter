@@ -16,7 +16,7 @@ Contributors:
 
 using System.Diagnostics;
 
-namespace Emitter.Utility
+namespace Uno.Emitter.Utility
 {
     /// <summary>
     /// Tracing levels

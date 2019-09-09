@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Emitter.Messages
+namespace Uno.Emitter.Messages
 {
     public class ErrorEvent
     {
@@ -13,7 +14,7 @@ namespace Emitter.Messages
 
         public static ErrorEvent FromJson(string json)
         {
-            var map = JsonSerializer.DeserializeString(json) as Hashtable;
+            var map = JsonConvert.DeserializeObject(json) as Hashtable;
             var error = new ErrorEvent();
 
             if (map.ContainsKey("req")) error.RequestId = (long)map["req"];

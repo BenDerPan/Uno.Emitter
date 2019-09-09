@@ -18,6 +18,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
+using Uno.Emitter;
+
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace EmitterApp
@@ -65,7 +67,15 @@ namespace EmitterApp
 
         private async void BtnSendMsg_Click(object sender, RoutedEventArgs e)
         {
+            //channel: test /#/
+            //key    : BaDC_v4dIYai2krr0qMS0AMV9rUVYrOi
 
+            Uno.Emitter.Connection emitter = new Connection("BaDC_v4dIYai2krr0qMS0AMV9rUVYrOi", "localhost", 8080, false);
+            emitter.Connect();
+            await Task.Delay(3000);
+            emitter.Subscribe("test/");
+            await Task.Delay(3000);
+            emitter.Publish("test/", "HHHHHH");
             var options = new MqttClientOptionsBuilder().WithWebSocketServer("localhost:8080").Build();
             var factory = new MqttFactory();
             var mqttClient = factory.CreateMqttClient();

@@ -17,7 +17,7 @@ Contributors:
 
 using System;
 
-namespace Emitter
+namespace Uno.Emitter
 {
 
     /// <summary>

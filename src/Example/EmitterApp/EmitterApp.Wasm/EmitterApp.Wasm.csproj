@@ -34,12 +34,13 @@
     <!-- Note that for WebAssembly version 1.1.1 of the console logger required -->
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Filter" Version="1.1.1" />
-    <PackageReference Include="Uno.UI" Version="1.46.227-dev.2665" />
+    <PackageReference Include="Uno.UI" Version="1.46.226-dev.2661" />
     <PackageReference Include="Uno.Wasm.Bootstrap" Version="1.1.0-dev.311" />
     <DotNetCliToolReference Include="Uno.Wasm.Bootstrap.Cli" Version="1.0.0-dev.244" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\MQTTnet\MQTTnet.csproj" />
+    <ProjectReference Include="..\..\..\Uno.Emitter\Uno.Emitter.csproj" />
   </ItemGroup>
   <Import Project="..\EmitterApp.Shared\EmitterApp.Shared.projitems" Label="Shared" Condition="Exists('..\EmitterApp.Shared\EmitterApp.Shared.projitems')" />
 </Project>

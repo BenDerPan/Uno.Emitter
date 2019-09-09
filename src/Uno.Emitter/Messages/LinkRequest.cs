@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Emitter.Messages
+namespace Uno.Emitter.Messages
 {
     public class LinkRequest
     {
@@ -38,7 +39,7 @@ namespace Emitter.Messages
         /// <returns></returns>
         public string ToJson()
         {
-            return JsonSerializer.SerializeObject(new Hashtable
+            return JsonConvert.SerializeObject(new Hashtable
             {
                 {"key", this.Key},
                 {"channel", this.Channel},

@@ -1,6 +1,6 @@
 using System.Text;
-using Emitter.Messages;
-using Emitter.Utility;
+using Uno.Emitter.Messages;
+using Uno.Emitter.Utility;
 
 namespace Uno.Emitter
 {

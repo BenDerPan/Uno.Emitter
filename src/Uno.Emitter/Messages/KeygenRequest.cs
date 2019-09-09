@@ -13,11 +13,12 @@ Contributors:
 */
 
 
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Text;
 
-namespace Emitter.Messages
+namespace Uno.Emitter.Messages
 {
     /// <summary>
     /// Represents a key generation request.
@@ -62,7 +63,7 @@ namespace Emitter.Messages
             if ((this.Type & SecurityAccess.Presence) != 0)
                 keyType += "p";
 
-            return JsonSerializer.SerializeObject(new Hashtable
+            return JsonConvert.SerializeObject(new Hashtable
             {
                 {"key", this.Key},
                 {"channel", this.Channel},

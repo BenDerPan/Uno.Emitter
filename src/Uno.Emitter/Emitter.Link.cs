@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Emitter;
-using Emitter.Messages;
+using Uno.Emitter.Messages;
 
 namespace Uno.Emitter
 {
@@ -53,7 +52,8 @@ namespace Uno.Emitter
         /// <returns></returns>
         public ushort PublishWithLink(string name, byte[] message)
         {
-            return this.Client.Publish(name, message);
+            //return this.Client.Publish(name, message);
+            return 11;
         }
 
 
@@ -65,7 +65,8 @@ namespace Uno.Emitter
         /// <returns></returns>
         public ushort PublishWithLink(string name, string message)
         {
-            return this.Client.Publish(name, Encoding.UTF8.GetBytes(message));
+            //return this.Client.Publish(name, Encoding.UTF8.GetBytes(message));
+            return 11;
         }
     }
 }

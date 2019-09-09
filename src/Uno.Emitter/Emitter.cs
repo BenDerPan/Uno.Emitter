@@ -12,23 +12,54 @@ Contributors:
    Roman Atachiants - integrating with emitter.io
 */
 
+using Uno.Emitter.Utility;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using MQTTnet.Client;
+using MQTTnet.Client.Connecting;
+using MQTTnet;
+using MQTTnet.Client.Options;
+using MQTTnet.Client.Disconnecting;
+using Uno.Emitter.Messages;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Emitter.Messages;
-using Emitter.Utility;
-
-#if (MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3)
-
-using Microsoft.SPOT;
-
-#endif
 
 namespace Uno.Emitter
 {
+    public class MqttConnectedHandler : IMqttClientConnectedHandler
+    {
+        public MqttConnectedHandler()
+        {
+
+        }
+        public Task HandleConnectedAsync(MqttClientConnectedEventArgs eventArgs)
+        {
+            return Task.Run(() =>
+            {
+                Console.WriteLine("连接成功!");
+            });
+        }
+    }
+
+    public class MqttDisconnectedHandler : IMqttClientDisconnectedHandler
+    {
+        public MqttDisconnectedHandler()
+        {
+        }
+        public Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs)
+        {
+            return Task.Run(() =>
+            {
+                Console.WriteLine("连接断开!!!!");
+            });
+        }
+    }
+    
+        
+    
+
+
     /// <summary>
     /// Represents a message handler callback.
     /// </summary>
@@ -50,7 +81,7 @@ namespace Uno.Emitter
     public partial class Connection : IDisposable
     {
         #region Constructors
-        private readonly MqttClient Client;
+        private readonly IMqttClient Client;
         private readonly ReverseTrie<MessageHandler> Trie = new ReverseTrie<MessageHandler>(-1);
         private string DefaultKey = null;
 
@@ -58,6 +89,11 @@ namespace Uno.Emitter
         private readonly ConcurrentDictionary<string, int> RequestNames = new ConcurrentDictionary<string, int>();
         private readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
 
+        string _defaultKey;
+        string _broker;
+        int _brokerPort;
+        bool _secure = true;
+        CancellationTokenSource cancellation;
 
         /// <summary>
         /// Constructs a new emitter.io connection.
@@ -93,17 +129,21 @@ namespace Uno.Emitter
                 brokerPort = secure ? 443 : 8080;
 
             this.DefaultKey = defaultKey;
+            _defaultKey = defaultKey;
+            _broker = broker;
+            _brokerPort = brokerPort;
+            _secure = secure;
             if (secure)
-                #if !(WINDOWS_APP || WINDOWS_PHONE_APP)
-                this.Client = new MqttClient(broker, brokerPort, true, MqttSslProtocols.TLSv1_0, null, null);
-                #else
-                this.Client = new MqttClient(broker, brokerPort, true, MqttSslProtocols.TLSv1_0);
-                #endif
+                throw new Exception("暂时不支持！");
             else
-                this.Client = new MqttClient(broker, brokerPort);
+            {
+                var factory = new MqttFactory();
+                this.Client = factory.CreateMqttClient();
+            }
 
-            this.Client.MqttMsgPublishReceived += OnMessageReceived;
-            this.Client.ConnectionClosed += OnDisconnect;
+            this.Client.ConnectedHandler = new MqttConnectedHandler();
+            this.Client.UseApplicationMessageReceivedHandler(OnMessageReceived);
+            this.Client.DisconnectedHandler= new MqttDisconnectedHandler();
         }
 
 #endregion Constructors
@@ -210,12 +250,16 @@ namespace Uno.Emitter
             this.Disconnected?.Invoke(sender, e);
         }
 
+
+       
         /// <summary>
         /// Connects the emitter.io service.
         /// </summary>
         public void Connect()
         {
-            var connack = this.Client.Connect(Guid.NewGuid().ToString());
+            cancellation = new CancellationTokenSource();
+            var options = new MqttClientOptionsBuilder().WithWebSocketServer($"{_broker}:{_brokerPort}").Build();
+            var connack = this.Client.ConnectAsync(options, cancellation.Token);
         }
 
         /// <summary>
@@ -223,7 +267,7 @@ namespace Uno.Emitter
         /// </summary>
         public void Disconnect()
         {
-            this.Client.Disconnect();
+            this.Client.DisconnectAsync();
         }
 
 #endregion Connect / Disconnect Members
@@ -233,76 +277,81 @@ namespace Uno.Emitter
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnMessageReceived(object sender, Messages.MqttMsgPublishEventArgs e)
+        private Task OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
         {
-            try
+            return Task.Run(() =>
             {
-                if (!e.Topic.StartsWith("emitter"))
+                try
                 {
-                    var handlers = this.Trie.Match(e.Topic);
-                    // Invoke every handler matching the channel
-                    foreach (MessageHandler handler in handlers)
-                        handler(e.Topic, e.Message);
-
-                    if (handlers.Count == 0)
-                        DefaultMessageHandler?.Invoke(e.Topic, e.Message);
-                    return;
-                }
-
-                // Did we receive a keygen response?
-                if (e.Topic == "emitter/keygen/")
-                {
-                    // Deserialize the response
-                    var response = KeygenResponse.FromBinary(e.Message);
-                    if (response == null || response.Status != 200)
+                    if (!e.ApplicationMessage.Topic.StartsWith("emitter"))
                     {
-                        this.InvokeError(response.Status);
+                        var handlers = this.Trie.Match(e.ApplicationMessage.Topic);
+                        // Invoke every handler matching the channel
+                        foreach (MessageHandler handler in handlers)
+                            handler(e.ApplicationMessage.Topic, e.ApplicationMessage.Payload);
+
+                        if (handlers.Count == 0)
+                            DefaultMessageHandler?.Invoke(e.ApplicationMessage.Topic, e.ApplicationMessage.Payload);
                         return;
                     }
 
-                    // Call the response handler we have registered previously
-                    // TODO: get rid of the handler afterwards, or refac keygen
-                    if (this.KeygenHandlers.ContainsKey(response.Channel))
-                        ((KeygenHandler)this.KeygenHandlers[response.Channel])(response);
+                    // Did we receive a keygen response?
+                    if (e.ApplicationMessage.Topic == "emitter/keygen/")
+                    {
+                        // Deserialize the response
+                        var response = KeygenResponse.FromBinary(e.ApplicationMessage.Payload);
+                        if (response == null || response.Status != 200)
+                        {
+                            this.InvokeError(response.Status);
+                            return;
+                        }
+
+                        // Call the response handler we have registered previously
+                        // TODO: get rid of the handler afterwards, or refac keygen
+                        if (this.KeygenHandlers.ContainsKey(response.Channel))
+                            ((KeygenHandler)this.KeygenHandlers[response.Channel])(response);
+                        return;
+                    }
+
+                    if (e.ApplicationMessage.Topic == "emitter/presence/")
+                    {
+                        var presenceEvent = PresenceEvent.FromBinary(e.ApplicationMessage.Payload);
+
+                        var handlers = this.PresenceTrie.Match(presenceEvent.Channel);
+                        // Invoke every handler matching the channel
+                        foreach (PresenceHandler handler in handlers)
+                            handler(presenceEvent);
+
+                        if (handlers.Count == 0)
+                            DefaultPresenceHandler?.Invoke(presenceEvent);
+
+                        return;
+                    }
+
+                    if (e.ApplicationMessage.Topic == "emitter/error/")
+                    {
+                        var errorEvent = ErrorEvent.FromBinary(e.ApplicationMessage.Payload);
+                        var emitterException = new EmitterException((EmitterEventCode)errorEvent.Status, errorEvent.Message);
+
+                        InvokeError(emitterException);
+                        return;
+                    }
+
+                    if (e.ApplicationMessage.Topic == "emitter/me/")
+                    {
+                        var meResponse = MeResponse.FromBinary(e.ApplicationMessage.Payload);
+                        Me?.Invoke(meResponse);
+
+                        return;
+                    }
                     return;
                 }
-
-                if (e.Topic == "emitter/presence/")
+                catch (Exception ex)
                 {
-                    var presenceEvent = PresenceEvent.FromBinary(e.Message);
-                    
-                    var handlers = this.PresenceTrie.Match(presenceEvent.Channel);
-                    // Invoke every handler matching the channel
-                    foreach (PresenceHandler handler in handlers)
-                        handler(presenceEvent);
-
-                    if (handlers.Count == 0)
-                        DefaultPresenceHandler?.Invoke(presenceEvent);
-
+                    this.InvokeError(ex);
                     return;
                 }
-
-                if (e.Topic == "emitter/error/")
-                {
-                    var errorEvent = ErrorEvent.FromBinary(e.Message);
-                    var emitterException = new EmitterException((EmitterEventCode)errorEvent.Status, errorEvent.Message);
-
-                    InvokeError(emitterException);
-                    return;
-                }
-
-                if (e.Topic == "emitter/me/")
-                {
-                    var meResponse = MeResponse.FromBinary(e.Message);
-                    Me?.Invoke(meResponse);
-       
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                this.InvokeError(ex);
-            }
+            });
         }
 #region Private Members
 
