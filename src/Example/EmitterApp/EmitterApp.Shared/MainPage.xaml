@@ -10,12 +10,23 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="auto"></RowDefinition>
+        <RowDefinition Height="500"></RowDefinition>
         <RowDefinition Height="*"></RowDefinition>
       </Grid.RowDefinitions>
       <StackPanel Grid.Row="0" Orientation="Horizontal">
         <TextBox x:Name="tbInput" Width="300"></TextBox>
         <Button x:Name="btnSendMsg" Content="Send" Click="BtnSendMsg_Click"></Button>
       </StackPanel>
-      <TextBlock x:Name="tbOutput" Grid.Row="1"></TextBlock>
+      <TextBlock x:Name="tbOutput" Grid.Row="1" ></TextBlock>
+      <StackPanel Grid.Row="2">
+        <ToggleSwitch>
+          <ToggleSwitch.OffContent>
+            <TextBlock Text="I'm off right now." />
+          </ToggleSwitch.OffContent>
+          <ToggleSwitch.OnContent>
+            <TextBlock Text="I'm on!" />
+          </ToggleSwitch.OnContent>
+        </ToggleSwitch>
+      </StackPanel>
     </Grid>
 </Page>
