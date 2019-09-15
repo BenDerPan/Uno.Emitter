@@ -1,4 +1,4 @@
-﻿using MQTTnet;
+﻿using Uno.MQTTnet;
 using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
 using System;
@@ -103,14 +103,7 @@ namespace EmitterApp
                 }
 
             });
-            var options = new MqttClientOptionsBuilder().WithWebSocketServer("localhost:8080").Build();
-            var factory = new MqttFactory();
-            var mqttClient = factory.CreateMqttClient();
-            mqttClient.ConnectedHandler = new MqttHandler(this);
-            
-            CancellationTokenSource cancellation = new CancellationTokenSource();
-            await ShowLog($"正在连接Emitter ...");
-            await mqttClient.ConnectAsync(options, cancellation.Token);
+          
 
             return;
 

@@ -18,12 +18,13 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using MQTTnet.Client;
 using MQTTnet.Client.Connecting;
-using MQTTnet;
+using Uno.MQTTnet;
 using MQTTnet.Client.Options;
 using MQTTnet.Client.Disconnecting;
 using Uno.Emitter.Messages;
 using System.Text;
 using System.Threading;
+using MQTTnet;
 
 namespace Uno.Emitter
 {
@@ -137,7 +138,7 @@ namespace Uno.Emitter
                 throw new Exception("暂时不支持！");
             else
             {
-                var factory = new MqttFactory();
+                var factory = new WasmMqttFactory();
                 this.Client = factory.CreateMqttClient();
             }
 
@@ -146,7 +147,9 @@ namespace Uno.Emitter
             this.Client.DisconnectedHandler= new MqttDisconnectedHandler();
         }
 
-#endregion Constructors
+      
+
+        #endregion Constructors
 
         #region Error Members
 

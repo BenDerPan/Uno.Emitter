@@ -5,11 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MQTTnet" Version="3.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\MQTTnet\MQTTnet.csproj" />
+    <PackageReference Include="Uno.Wasm.WebSockets" Version="1.0.0-dev.30" />
   </ItemGroup>
 
 </Project>

@@ -39,7 +39,6 @@
     <DotNetCliToolReference Include="Uno.Wasm.Bootstrap.Cli" Version="1.0.0-dev.244" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MQTTnet\MQTTnet.csproj" />
     <ProjectReference Include="..\..\..\Uno.Emitter\Uno.Emitter.csproj" />
   </ItemGroup>
   <Import Project="..\EmitterApp.Shared\EmitterApp.Shared.projitems" Label="Shared" Condition="Exists('..\EmitterApp.Shared\EmitterApp.Shared.projitems')" />
