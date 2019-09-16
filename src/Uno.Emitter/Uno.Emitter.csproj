@@ -11,6 +11,9 @@
     <RepositoryUrl>https://github.com/BenDerPan/Uno.Emitter</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags />
+    <PackageId>BenDerPan.Uno.Emitter</PackageId>
+    <Authors>BenDerPan.Uno.Emitter</Authors>
+    <Product>BenDerPan.Uno.Emitter</Product>
   </PropertyGroup>
 
   <ItemGroup>
